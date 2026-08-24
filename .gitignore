@@ -1,0 +1,15 @@
+# .NET
+bin/
+obj/
+*.user
+
+# Node
+node_modules/
+dist/
+dist-electron/
+release/
+
+# Editor
+.vs/
+.vscode/
+.idea/
