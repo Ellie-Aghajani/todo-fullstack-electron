@@ -1,6 +1,6 @@
 namespace TodoApi.Models;
 
-public class Todo
+public class Todo: AuditableEntity //extend Todo class to inherit from AuditableEntity
 {
     public int Id { get; private set; }
     public string Title { get; private set; } = string.Empty;
@@ -21,6 +21,7 @@ public class Todo
     public void MarkComplete()
     {
         IsComplete = true;
+        Touch(); //inherited method from AuditableEntity to update UpdatedAt timestamp
     }
 
     public void Rename(string newTitle)
@@ -29,5 +30,6 @@ public class Todo
             throw new ArgumentException("Title cannot be empty.", nameof(newTitle));
 
         Title = newTitle.Trim();
+        Touch(); // Update the UpdatedAt timestamp, use Inherited method from AuditableEntity
     }
 }
