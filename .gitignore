@@ -13,3 +13,4 @@ release/
 .vs/
 .vscode/
 .idea/
+.Development.json/
