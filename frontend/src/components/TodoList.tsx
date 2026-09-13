@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchTodos } from "../api/todos";
+import TodoItem from "./TodoItem";
 
 function TodoList() {
   const { data: todos, isLoading, isError } = useQuery({
@@ -13,7 +14,7 @@ function TodoList() {
   return (
     <ul>
       {todos?.map((todo) => (
-        <li key={todo.id}>{todo.title}</li>
+        <TodoItem key={todo.id} todo={todo} />
       ))}
     </ul>
   );

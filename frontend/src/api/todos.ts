@@ -25,3 +25,14 @@ export async function createTodo(title: string): Promise<Todo> {
   }
   return response.json();
 }
+export async function toggleTodo(todo: Todo): Promise<Todo> {
+  const response = await fetch(`${BASE_URL}/${todo.id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...todo, isComplete: !todo.isComplete }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to update todo");
+  }
+  return response.json();
+}
