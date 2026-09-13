@@ -36,3 +36,21 @@ export async function toggleTodo(todo: Todo): Promise<Todo> {
   }
   return response.json();
 }
+export async function deleteTodo(id: number): Promise<void> {
+  const response = await fetch(`${BASE_URL}/${id}`, { method: "DELETE" });
+  if (!response.ok) {
+    throw new Error("Failed to delete todo");
+  }
+}
+
+export async function renameTodo(todo: Todo, newTitle: string): Promise<Todo> {
+  const response = await fetch(`${BASE_URL}/${todo.id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...todo, title: newTitle }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to rename todo");
+  }
+  return response.json();
+}

@@ -31,6 +31,11 @@ public class Todo : AuditableEntity //extend Todo class to inherit from Auditabl
         IsComplete = true;
         Touch(); //inherited method from AuditableEntity to update UpdatedAt timestamp
     }
+    public void MarkIncomplete()
+    {
+        IsComplete = false;
+        Touch();
+    }
 
     public void Rename(string newTitle)
     {

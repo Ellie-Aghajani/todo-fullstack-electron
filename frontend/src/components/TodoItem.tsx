@@ -1,25 +1,18 @@
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toggleTodo } from "../api/todos";
+import { toggleTodo, deleteTodo, renameTodo } from "../api/todos";
 import type { Todo } from "../api/todos";
 
 function TodoItem({ todo }: { todo: Todo }) {
   const queryClient = useQueryClient();
+  const [isEditing, setIsEditing] = useState(false);
+  const [draftTitle, setDraftTitle] = useState(todo.title);
 
   const toggleMutation = useMutation({
     mutationFn: toggleTodo,
-
-    // Runs BEFORE the network request starts.
     onMutate: async (todoBeingToggled) => {
-      // Stop any in-flight refetch of "todos" so it doesn't overwrite
-      // our optimistic update with stale data.
       await queryClient.cancelQueries({ queryKey: ["todos"] });
-
-      // Snapshot the current cache, so we can roll back to exactly
-      // this if the request fails.
       const previousTodos = queryClient.getQueryData<Todo[]>(["todos"]);
-
-      // Optimistically flip the checkbox in the cache immediately,
-      // before the server has responded at all.
       queryClient.setQueryData<Todo[]>(["todos"], (old) =>
         old?.map((t) =>
           t.id === todoBeingToggled.id
@@ -27,35 +20,81 @@ function TodoItem({ todo }: { todo: Todo }) {
             : t
         )
       );
-
-      // Returned here so onError can access it as `context.previousTodos`.
       return { previousTodos };
     },
-
-    // Runs if the mutation fails.
-    onError: (_err, _todoBeingToggled, context) => {
-      // Roll back to the exact snapshot taken in onMutate — undo the
-      // optimistic change since it turned out to be wrong.
+    onError: (_err, _todo, context) => {
       queryClient.setQueryData(["todos"], context?.previousTodos);
     },
-
-    // Runs whether it succeeded or failed.
     onSettled: () => {
-      // Resync with the server's actual truth either way.
       queryClient.invalidateQueries({ queryKey: ["todos"] });
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: deleteTodo,
+    onMutate: async (idBeingDeleted) => {
+      await queryClient.cancelQueries({ queryKey: ["todos"] });
+      const previousTodos = queryClient.getQueryData<Todo[]>(["todos"]);
+      queryClient.setQueryData<Todo[]>(["todos"], (old) =>
+        old?.filter((t) => t.id !== idBeingDeleted)
+      );
+      return { previousTodos };
+    },
+    onError: (_err, _id, context) => {
+      queryClient.setQueryData(["todos"], context?.previousTodos);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  });
+
+  const renameMutation = useMutation({
+    mutationFn: ({ todo, newTitle }: { todo: Todo; newTitle: string }) =>
+      renameTodo(todo, newTitle),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+      setIsEditing(false);
+    },
+  });
+
+  function handleRenameSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!draftTitle.trim() || draftTitle === todo.title) {
+      setIsEditing(false);
+      return;
+    }
+    renameMutation.mutate({ todo, newTitle: draftTitle });
+  }
+
   return (
     <li>
-      <label>
-        <input
-          type="checkbox"
-          checked={todo.isComplete}
-          onChange={() => toggleMutation.mutate(todo)}
-        />
-        {todo.title}
-      </label>
+      <input
+        type="checkbox"
+        checked={todo.isComplete}
+        onChange={() => toggleMutation.mutate(todo)}
+      />
+
+      {isEditing ? (
+        <form onSubmit={handleRenameSubmit} style={{ display: "inline" }}>
+          <input
+            type="text"
+            value={draftTitle}
+            onChange={(e) => setDraftTitle(e.target.value)}
+            autoFocus
+          />
+          <button type="submit">Save</button>
+          <button type="button" onClick={() => setIsEditing(false)}>
+            Cancel
+          </button>
+        </form>
+      ) : (
+        <>
+          <span>{todo.title}</span>
+          <button onClick={() => setIsEditing(true)}>Update</button>
+        </>
+      )}
+
+      <button onClick={() => deleteMutation.mutate(todo.id)}>Delete</button>
     </li>
   );
 }

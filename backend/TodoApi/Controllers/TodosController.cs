@@ -61,7 +61,7 @@ public class TodosController : ControllerBase
         }
         return CreatedAtAction(nameof(GetById), new { id = todo.Id }, todo);
     }
-    public record UpdateTodoRequest(bool IsComplete);
+    public record UpdateTodoRequest(bool IsComplete, string? Title);
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, UpdateTodoRequest request)
@@ -73,10 +73,20 @@ public class TodosController : ControllerBase
         {
             todo.MarkComplete();
         }
+        else if (!request.IsComplete && todo.IsComplete)
+        {
+            todo.MarkIncomplete();
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Title) && request.Title != todo.Title)
+        {
+            todo.Rename(request.Title);
+        }
 
         await _repository.SaveChangesAsync();
         return Ok(todo);
     }
+    
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
