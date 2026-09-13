@@ -14,7 +14,7 @@ public class TodosController : ControllerBase
     private readonly TodoActivityLogger _logger;
 
 
-    public TodosController(ITodoRepository repository)
+    public TodosController(ITodoRepository repository, RequestAuditor auditor, TodoActivityLogger logger)
     {
         _repository = repository;
 
