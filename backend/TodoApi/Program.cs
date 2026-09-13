@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
 using TodoApi.Repositories;
+using TodoApi.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -11,7 +13,8 @@ builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
-
+builder.Services.AddSingleton<TodoActivityLogger>();
+builder.Services.AddScoped<RequestAuditor>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

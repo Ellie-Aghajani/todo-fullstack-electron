@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using TodoApi.Models;
 using TodoApi.Repositories;
+using TodoApi.Services;
 
 namespace TodoApi.Controllers;
 
@@ -10,10 +11,17 @@ namespace TodoApi.Controllers;
 public class TodosController : ControllerBase
 {
     private readonly ITodoRepository _repository;
+    private readonly TodoActivityLogger _logger;
+
 
     public TodosController(ITodoRepository repository)
     {
         _repository = repository;
+
+        _logger = logger;
+        // We don't need to do anything else with `auditor` here — just asking
+        // for it in the constructor is enough to make .NET's DI container
+        // create one and run its constructor, which is where the leak happens.
     }
 
     [HttpGet]
@@ -41,9 +49,10 @@ public class TodosController : ControllerBase
         {
             await _repository.AddAsync(todo);
             await _repository.SaveChangesAsync();
-            
+            _logger.Record($"Created todo '{todo.Title}'");
+
         }
-        catch(DbUpdateException)
+        catch (DbUpdateException)
         {
             // This is the FK edge case from the plan: SQL Server rejected the
             // insert because the CategoryId doesn't exist. We translate that
