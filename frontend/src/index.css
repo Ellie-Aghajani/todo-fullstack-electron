@@ -109,3 +109,32 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+.dark {
+  background-color: #1a1a1a;
+  color: #f0f0f0;
+  min-height: 100vh;
+}
+
+.light {
+  background-color: #ffffff;
+  color: #1a1a1a;
+  min-height: 100vh;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+.light h1 {
+  color: #111111;
+}
+button {
+  margin-right: 8px;
+}
+.filter-bar {
+  display: flex;
+  gap: 8px;
+}
+input {
+  margin-right: 8px;
+  margin-bottom: 20px;
+}
