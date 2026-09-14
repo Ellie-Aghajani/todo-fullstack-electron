@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@mui/material";
 import { createTodo } from "../api/todos";
 
 function AddTodo() {
@@ -9,8 +10,6 @@ function AddTodo() {
   const createMutation = useMutation({
     mutationFn: createTodo,
     onSuccess: () => {
-      // Tell React Query the "todos" cache is stale, so it refetches
-      // and the new todo shows up in the list.
       queryClient.invalidateQueries({ queryKey: ["todos"] });
     },
   });
@@ -31,7 +30,9 @@ function AddTodo() {
         onChange={(e) => setTitle(e.target.value)}
         placeholder="What needs doing?"
       />
-      <button type="submit">Add</button>
+      <Button type="submit" variant="contained">
+        Add
+      </Button>
     </form>
   );
 }

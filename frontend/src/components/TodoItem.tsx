@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Checkbox } from "@mui/material";
 import { toggleTodo, deleteTodo, renameTodo } from "../api/todos";
 import type { Todo } from "../api/todos";
 
@@ -17,8 +18,8 @@ function TodoItem({ todo }: { todo: Todo }) {
         old?.map((t) =>
           t.id === todoBeingToggled.id
             ? { ...t, isComplete: !t.isComplete }
-            : t
-        )
+            : t,
+        ),
       );
       return { previousTodos };
     },
@@ -36,7 +37,7 @@ function TodoItem({ todo }: { todo: Todo }) {
       await queryClient.cancelQueries({ queryKey: ["todos"] });
       const previousTodos = queryClient.getQueryData<Todo[]>(["todos"]);
       queryClient.setQueryData<Todo[]>(["todos"], (old) =>
-        old?.filter((t) => t.id !== idBeingDeleted)
+        old?.filter((t) => t.id !== idBeingDeleted),
       );
       return { previousTodos };
     },
@@ -68,8 +69,7 @@ function TodoItem({ todo }: { todo: Todo }) {
 
   return (
     <li>
-      <input
-        type="checkbox"
+      <Checkbox
         checked={todo.isComplete}
         onChange={() => toggleMutation.mutate(todo)}
       />

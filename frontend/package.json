@@ -12,6 +12,10 @@
     "electron:build": "npm run build && tsc -p electron/tsconfig.json && electron-builder"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^9.4.0",
+    "@mui/material": "^9.4.0",
     "@reduxjs/toolkit": "^2.12.0",
     "@tanstack/react-query": "^5.102.8",
     "react": "^19.2.8",
