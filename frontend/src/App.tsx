@@ -5,6 +5,7 @@ import { useAppSelector } from "./store/hooks";
 import AddTodo from "./components/AddTodo";
 import TodoList from "./components/TodoList";
 import FilterBar from "./components/FilterBar";
+import Header from "./components/Header";
 
 function App() {
   const mode = useAppSelector((state) => state.ui.theme);
@@ -13,7 +14,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <h1>To-Do</h1>
+      <Header />
       <AddTodo />
       <FilterBar />
       <TodoList />
