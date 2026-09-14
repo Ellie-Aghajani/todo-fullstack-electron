@@ -11,7 +11,7 @@ function FilterBar() {
   const theme = useAppSelector((state) => state.ui.theme);
 
   return (
-    <Stack direction="row" spacing={1.5}  sx={{ margin: 3 }} >
+    <Stack direction="row" spacing={1} sx={{ justifyContent: "center", width: "100%" }}>
       {options.map((option) => (
         <Button
           size="small"

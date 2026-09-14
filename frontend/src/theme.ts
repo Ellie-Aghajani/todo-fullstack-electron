@@ -7,7 +7,7 @@ export function getTheme(mode: "light" | "dark") {
         xs: 0,
         sm: 600,
         md: 900,
-        lg: 1200,
+        lg: 1024,
         xl: 1536,
       },
     },
@@ -43,9 +43,21 @@ export function getTheme(mode: "light" | "dark") {
         fontSize: "1.25rem",
       },
       button: {
-        //   textTransform: "none",
-        //   fontWeight: 500,
-        fontSize: "0.8rem",
+        textTransform: "none",
+        fontWeight: 500,
+        fontSize: "1rem", // xl and above (1536px+) — default/base
+        "@media (max-width: 1535.95px)": {
+          fontSize: "0.95rem", // lg (1200–1535px)
+        },
+        "@media (max-width: 1199.95px)": {
+          fontSize: "0.85rem", // md (900–1199px)
+        },
+        "@media (max-width: 899.95px)": {
+          fontSize: "0.75rem", // sm (600–899px)
+        },
+        "@media (max-width: 599.95px)": {
+          fontSize: "0.6rem", // xs (0–599px)
+        },
       },
     },
     components: {

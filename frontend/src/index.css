@@ -6,3 +6,8 @@ ul {
   list-style: none;
   padding: 0;
 }
+
+html, body, #root {
+  overflow-x: hidden;
+  max-width: 100%;
+}
