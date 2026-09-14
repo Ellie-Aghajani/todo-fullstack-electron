@@ -1,3 +1,4 @@
+import { Button, Stack } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { setFilter, toggleTheme } from "../store/uiSlice";
 import type { Filter } from "../store/uiSlice";
@@ -10,20 +11,27 @@ function FilterBar() {
   const theme = useAppSelector((state) => state.ui.theme);
 
   return (
-    <div>
+    <Stack direction="row" spacing={1.5}  sx={{ margin: 3 }} >
       {options.map((option) => (
-        <button
+        <Button
+          size="small"
           key={option}
+          variant="contained"
+          color={filter === option ? "primary" : "inherit"}
           onClick={() => dispatch(setFilter(option))}
-          disabled={filter === option}
         >
           {option}
-        </button>
+        </Button>
       ))}
-      <button onClick={() => dispatch(toggleTheme())}>
+      <Button
+        size="small"
+        variant="contained"
+        color="inherit"
+        onClick={() => dispatch(toggleTheme())}
+      >
         Switch to {theme === "light" ? "dark" : "light"} mode
-      </button>
-    </div>
+      </Button>
+    </Stack>
   );
 }
 

@@ -2,6 +2,15 @@ import { createTheme } from "@mui/material/styles";
 
 export function getTheme(mode: "light" | "dark") {
   return createTheme({
+    breakpoints: {
+      values: {
+        xs: 0,
+        sm: 600,
+        md: 900,
+        lg: 1200,
+        xl: 1536,
+      },
+    },
     palette: {
       mode,
       primary: {
@@ -32,6 +41,49 @@ export function getTheme(mode: "light" | "dark") {
         letterSpacing: "1px",
         fontWeight: 500,
         fontSize: "1.25rem",
+      },
+      button: {
+        //   textTransform: "none",
+        //   fontWeight: 500,
+        fontSize: "0.8rem",
+      },
+    },
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: 20,
+            paddingTop: 4,
+            paddingBottom: 4,
+            margin: 4,
+            boxShadow: "none",
+            "&:hover": {
+              boxShadow: "none",
+            },
+          },
+        },
+        variants: [
+          {
+            props: { variant: "contained", color: "primary" },
+            style: {
+              backgroundColor: "#0068ac",
+              color: "#ffffff",
+              "&:hover": {
+                backgroundColor: "#00568c",
+              },
+            },
+          },
+          {
+            props: { variant: "contained", color: "inherit" },
+            style: {
+              backgroundColor: mode === "light" ? "#e5e7eb" : "#3a3937",
+              color: mode === "light" ? "#2e2c2b" : "#f1f1f1",
+              "&:hover": {
+                backgroundColor: mode === "light" ? "#d1d5db" : "#4a4947",
+              },
+            },
+          },
+        ],
       },
     },
   });

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@mui/material";
+import { Button, TextField, InputAdornment, Stack } from "@mui/material";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { createTodo } from "../api/todos";
 
 function AddTodo() {
@@ -24,15 +25,31 @@ function AddTodo() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="What needs doing?"
-      />
-      <Button type="submit" variant="contained">
-        Add
-      </Button>
+      <Stack direction="row" spacing={1.5}  sx={{ margin: 2 }} >
+        <TextField
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="What's on your mind today?"
+          fullWidth
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AddCircleIcon fontSize="large" color="primary" />
+                </InputAdornment>
+              ),
+            },
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 999,
+            },
+          }}
+        />
+        <Button type="submit" variant="contained" color="primary">
+          Add
+        </Button>
+      </Stack>
     </form>
   );
 }

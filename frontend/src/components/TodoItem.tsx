@@ -1,6 +1,17 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Checkbox } from "@mui/material";
+import {
+  Checkbox,
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItem,
+  ListItemText,
+  TextField,
+  Stack,
+  Button,
+} from "@mui/material";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { toggleTodo, deleteTodo, renameTodo } from "../api/todos";
 import type { Todo } from "../api/todos";
 
@@ -8,6 +19,7 @@ function TodoItem({ todo }: { todo: Todo }) {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState(todo.title);
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
 
   const toggleMutation = useMutation({
     mutationFn: toggleTodo,
@@ -68,34 +80,102 @@ function TodoItem({ todo }: { todo: Todo }) {
   }
 
   return (
-    <li>
+    <ListItem
+      secondaryAction={
+        !isEditing && (
+          <>
+            {/* Tablet and up: inline text buttons. Hidden below the "sm"
+                breakpoint via theme-driven CSS, not a JS media query hook. */}
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{ display: { xs: "none", sm: "flex" } }}
+            >
+              <Button size="small" onClick={() => setIsEditing(true)}>
+                Update
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                color="error"
+                onClick={() => deleteMutation.mutate(todo.id)}
+              >
+                Delete
+              </Button>
+            </Stack>
+
+            {/* Mobile: collapsed into the overflow menu instead. */}
+            <IconButton
+              onClick={(e) => setMenuAnchor(e.currentTarget)}
+              sx={{ display: { xs: "inline-flex", sm: "none" } }}
+            >
+              <MoreHorizIcon />
+            </IconButton>
+          </>
+        )
+      }
+    >
       <Checkbox
         checked={todo.isComplete}
         onChange={() => toggleMutation.mutate(todo)}
       />
 
       {isEditing ? (
-        <form onSubmit={handleRenameSubmit} style={{ display: "inline" }}>
-          <input
-            type="text"
-            value={draftTitle}
-            onChange={(e) => setDraftTitle(e.target.value)}
-            autoFocus
-          />
-          <button type="submit">Save</button>
-          <button type="button" onClick={() => setIsEditing(false)}>
-            Cancel
-          </button>
+        <form onSubmit={handleRenameSubmit} style={{ flex: 1 }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <TextField
+              size="small"
+              value={draftTitle}
+              onChange={(e) => setDraftTitle(e.target.value)}
+              autoFocus
+              fullWidth
+            />
+            <IconButton type="submit" size="small">
+              ✓
+            </IconButton>
+            <IconButton size="small" onClick={() => setIsEditing(false)}>
+              ✕
+            </IconButton>
+          </Stack>
         </form>
       ) : (
-        <>
-          <span>{todo.title}</span>
-          <button onClick={() => setIsEditing(true)}>Update</button>
-        </>
+        <ListItemText
+          primary={todo.title}
+          sx={{
+            textDecoration: todo.isComplete ? "line-through" : "none",
+            color: (t) =>
+              todo.isComplete
+                ? t.palette.text.secondary
+                : t.palette.text.primary,
+          }}
+        />
       )}
 
-      <button onClick={() => deleteMutation.mutate(todo.id)}>Delete</button>
-    </li>
+      {/* Always rendered — inactive/invisible until menuAnchor is set,
+          so there's no need to conditionally mount/unmount it. */}
+      <Menu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={() => setMenuAnchor(null)}
+      >
+        <MenuItem
+          onClick={() => {
+            setIsEditing(true);
+            setMenuAnchor(null);
+          }}
+        >
+          Update
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            deleteMutation.mutate(todo.id);
+            setMenuAnchor(null);
+          }}
+        >
+          Delete
+        </MenuItem>
+      </Menu>
+    </ListItem>
   );
 }
 
