@@ -54,3 +54,9 @@ export async function renameTodo(todo: Todo, newTitle: string): Promise<Todo> {
   }
   return response.json();
 }
+export async function deleteAllTodos(): Promise<void> {
+  const response = await fetch(BASE_URL, { method: "DELETE" });
+  if (!response.ok) {
+    throw new Error("Failed to delete all todos");
+  }
+}

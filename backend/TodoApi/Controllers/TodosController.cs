@@ -86,7 +86,18 @@ public class TodosController : ControllerBase
         await _repository.SaveChangesAsync();
         return Ok(todo);
     }
-    
+    [HttpDelete]
+    public async Task<IActionResult> DeleteAll()
+    {
+        var todos = await _repository.GetAllAsync();
+        foreach (var todo in todos)
+        {
+            await _repository.DeleteAsync(todo.Id);
+        }
+        await _repository.SaveChangesAsync();
+        return NoContent();
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

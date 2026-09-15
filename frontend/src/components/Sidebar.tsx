@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Drawer,
   Box,
@@ -10,13 +11,21 @@ import {
   ListItemText,
   Chip,
   Switch,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import ChecklistIcon from "@mui/icons-material/Checklist";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
-import { fetchTodos } from "../api/todos";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
+import { fetchTodos, deleteAllTodos } from "../api/todos";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { toggleTheme, setFilter } from "../store/uiSlice";
 import type { Filter } from "../store/uiSlice";
@@ -26,8 +35,11 @@ const DRAWER_WIDTH = 260;
 
 function Sidebar() {
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const filter = useAppSelector((state) => state.ui.filter);
   const theme = useAppSelector((state) => state.ui.theme);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [noTodosMessage, setNoTodosMessage] = useState(false);
 
   const { data: todos } = useQuery({
     queryKey: ["todos"],
@@ -37,6 +49,22 @@ function Sidebar() {
   const total = todos?.length ?? 0;
   const activeCount = todos?.filter((t) => !t.isComplete).length ?? 0;
   const completedCount = todos?.filter((t) => t.isComplete).length ?? 0;
+
+  const deleteAllMutation = useMutation({
+    mutationFn: deleteAllTodos,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+      setIsConfirmOpen(false);
+    },
+  });
+
+  function handleDeleteAllClick() {
+    if (total === 0) {
+      setNoTodosMessage(true);
+      return;
+    }
+    setIsConfirmOpen(true);
+  }
 
   const navItems: { label: string; icon: React.ReactNode; filter: Filter; count: number }[] = [
     { label: "All Tasks", icon: <ChecklistIcon />, filter: "all", count: total },
@@ -56,6 +84,9 @@ function Sidebar() {
           boxSizing: "border-box",
           position: "relative",
           border: "none",
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
         },
       }}
     >
@@ -68,28 +99,37 @@ function Sidebar() {
         </Stack>
       </Box>
 
-     <List>
-  <ListItemButton selected>
-    <ListItemIcon>
-      <HomeIcon />
-    </ListItemIcon>
-    <ListItemText primary="Home" />
-  </ListItemButton>
+      <Box sx={{ flex: 1, overflowY: "auto" }}>
+        <List>
+          <ListItemButton selected>
+            <ListItemIcon>
+              <HomeIcon />
+            </ListItemIcon>
+            <ListItemText primary="Home" />
+          </ListItemButton>
 
-  {navItems.map((item) => (
-    <ListItemButton
-      key={item.filter}
-      selected={filter === item.filter}
-      onClick={() => dispatch(setFilter(item.filter))}
-    >
-      <ListItemIcon>{item.icon}</ListItemIcon>
-      <ListItemText primary={item.label} />
-      <Chip label={item.count} size="small" />
-    </ListItemButton>
-  ))}
+          {navItems.map((item) => (
+            <ListItemButton
+              key={item.filter}
+              selected={filter === item.filter}
+              onClick={() => dispatch(setFilter(item.filter))}
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.label} />
+              <Chip label={item.count} size="small" />
+            </ListItemButton>
+          ))}
 
-  <CategoryListItems />
-</List>
+          <ListItemButton onClick={handleDeleteAllClick}>
+            <ListItemIcon>
+              <DeleteSweepIcon color="error" />
+            </ListItemIcon>
+            <ListItemText primary="Delete All" sx={{ color: "error.main" }} />
+          </ListItemButton>
+
+          <CategoryListItems />
+        </List>
+      </Box>
 
       <Box sx={{ marginTop: "auto", padding: 3 }}>
         <Stack direction="row" sx={{ alignItems: "center", justifyContent: "space-between" }}>
@@ -100,6 +140,34 @@ function Sidebar() {
           <Switch checked={theme === "dark"} onChange={() => dispatch(toggleTheme())} />
         </Stack>
       </Box>
+
+      <Dialog open={isConfirmOpen} onClose={() => setIsConfirmOpen(false)}>
+        <DialogTitle>Delete all tasks?</DialogTitle>
+        <DialogContent>
+          This will permanently delete all {total} tasks. This cannot be undone.
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsConfirmOpen(false)}>Cancel</Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={() => deleteAllMutation.mutate()}
+          >
+            Delete All
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={noTodosMessage}
+        autoHideDuration={4000}
+        onClose={() => setNoTodosMessage(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="info" onClose={() => setNoTodosMessage(false)}>
+          There aren't any todos to delete.
+        </Alert>
+      </Snackbar>
     </Drawer>
   );
 }
