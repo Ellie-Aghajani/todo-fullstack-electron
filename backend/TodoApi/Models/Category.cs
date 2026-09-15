@@ -19,4 +19,11 @@ public class Category : AuditableEntity
 
         return new Category { Name = name.Trim() };
     }
+    public void Rename(string newName)
+{
+    if (string.IsNullOrWhiteSpace(newName))
+        throw new ArgumentException("Category name cannot be empty.");
+    Name = newName.Trim();
+    Touch();
+}
 }

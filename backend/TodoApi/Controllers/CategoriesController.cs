@@ -33,6 +33,23 @@ public class CategoriesController : ControllerBase
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetAll), new { id = category.Id }, category);
     }
+    public record UpdateCategoryRequest(string Name);
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, UpdateCategoryRequest request)
+    {
+        var category = await _context.Categories.FindAsync(id);
+        if (category == null) return NotFound();
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return BadRequest("Name cannot be empty.");
+        }
+
+        category.Rename(request.Name);
+        await _context.SaveChangesAsync();
+        return Ok(category);
+    }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)

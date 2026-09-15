@@ -20,6 +20,7 @@ import { fetchTodos } from "../api/todos";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { toggleTheme, setFilter } from "../store/uiSlice";
 import type { Filter } from "../store/uiSlice";
+import CategoryListItems from "./CategoryListItems";
 
 const DRAWER_WIDTH = 260;
 
@@ -67,26 +68,28 @@ function Sidebar() {
         </Stack>
       </Box>
 
-      <List>
-        <ListItemButton selected>
-          <ListItemIcon>
-            <HomeIcon />
-          </ListItemIcon>
-          <ListItemText primary="Home" />
-        </ListItemButton>
+     <List>
+  <ListItemButton selected>
+    <ListItemIcon>
+      <HomeIcon />
+    </ListItemIcon>
+    <ListItemText primary="Home" />
+  </ListItemButton>
 
-        {navItems.map((item) => (
-          <ListItemButton
-            key={item.filter}
-            selected={filter === item.filter}
-            onClick={() => dispatch(setFilter(item.filter))}
-          >
-            <ListItemIcon>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.label} />
-            <Chip label={item.count} size="small" />
-          </ListItemButton>
-        ))}
-      </List>
+  {navItems.map((item) => (
+    <ListItemButton
+      key={item.filter}
+      selected={filter === item.filter}
+      onClick={() => dispatch(setFilter(item.filter))}
+    >
+      <ListItemIcon>{item.icon}</ListItemIcon>
+      <ListItemText primary={item.label} />
+      <Chip label={item.count} size="small" />
+    </ListItemButton>
+  ))}
+
+  <CategoryListItems />
+</List>
 
       <Box sx={{ marginTop: "auto", padding: 3 }}>
         <Stack direction="row" sx={{ alignItems: "center", justifyContent: "space-between" }}>
