@@ -9,10 +9,11 @@ import {
   ListItemText,
   TextField,
   Stack,
-  Button,
   Box,
 } from "@mui/material";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { toggleTodo, deleteTodo, renameTodo } from "../api/todos";
 import type { Todo } from "../api/todos";
 
@@ -31,8 +32,8 @@ function TodoItem({ todo }: { todo: Todo }) {
         old?.map((t) =>
           t.id === todoBeingToggled.id
             ? { ...t, isComplete: !t.isComplete }
-            : t
-        )
+            : t,
+        ),
       );
       return { previousTodos };
     },
@@ -50,7 +51,7 @@ function TodoItem({ todo }: { todo: Todo }) {
       await queryClient.cancelQueries({ queryKey: ["todos"] });
       const previousTodos = queryClient.getQueryData<Todo[]>(["todos"]);
       queryClient.setQueryData<Todo[]>(["todos"], (old) =>
-        old?.filter((t) => t.id !== idBeingDeleted)
+        old?.filter((t) => t.id !== idBeingDeleted),
       );
       return { previousTodos };
     },
@@ -81,16 +82,32 @@ function TodoItem({ todo }: { todo: Todo }) {
   }
 
   return (
-    <ListItem sx={{ display: "block", minWidth: 0 }}>
-      <Box sx={{ display: "flex", alignItems: "flex-start", minWidth: 0 }}>
+    <ListItem sx={{ display: "block", minWidth: 0, px: { xs: 0.5, sm: 1 } }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "flex-start",
+          minWidth: 0,
+          width: "100%",
+          gap: 0.5,
+        }}
+      >
         <Checkbox
           checked={todo.isComplete}
           onChange={() => toggleMutation.mutate(todo)}
+          sx={{ p: { xs: 0.5, sm: 1 }, flexShrink: 0 }}
         />
 
         {isEditing ? (
           <form onSubmit={handleRenameSubmit} style={{ flex: 1, minWidth: 0 }}>
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={1}
+              sx={{
+                alignItems: { xs: "stretch", sm: "center" },
+                width: "100%",
+              }}
+            >
               <TextField
                 size="small"
                 value={draftTitle}
@@ -98,12 +115,22 @@ function TodoItem({ todo }: { todo: Todo }) {
                 autoFocus
                 fullWidth
               />
-              <IconButton type="submit" size="small">
-                ✓
-              </IconButton>
-              <IconButton size="small" onClick={() => setIsEditing(false)}>
-                ✕
-              </IconButton>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{ justifyContent: "flex-end" }}
+              >
+                <IconButton type="submit" size="small" aria-label="Save task">
+                  ✓
+                </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={() => setIsEditing(false)}
+                  aria-label="Cancel edit"
+                >
+                  ✕
+                </IconButton>
+              </Stack>
             </Stack>
           </form>
         ) : (
@@ -118,29 +145,42 @@ function TodoItem({ todo }: { todo: Todo }) {
               overflowWrap: "break-word",
               wordBreak: "break-word",
               minWidth: 0,
+              pr: 1,
+              fontSize: { xs: "0.9rem", sm: "1rem" },
+              flex: 1,
             }}
           />
         )}
       </Box>
 
       {!isEditing && (
-        <Box sx={{ display: "flex", justifyContent: "flex-end", marginTop: 0.5 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            width: "100%",
+          }}
+        >
           <Stack
             direction="row"
             spacing={1}
             sx={{ display: { xs: "none", sm: "flex" } }}
           >
-            <Button size="small" onClick={() => setIsEditing(true)}>
-              Update
-            </Button>
-            <Button
+            <IconButton
               size="small"
-              variant="outlined"
+              onClick={() => setIsEditing(true)}
+              aria-label="Update task"
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              size="small"
               color="error"
               onClick={() => deleteMutation.mutate(todo.id)}
+              aria-label="Delete task"
             >
-              Delete
-            </Button>
+              <DeleteIcon fontSize="small" />
+            </IconButton>
           </Stack>
 
           <IconButton

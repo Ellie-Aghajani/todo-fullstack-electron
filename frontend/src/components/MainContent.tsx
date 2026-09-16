@@ -43,7 +43,7 @@ function MainContent() {
               order: 1,
               "@media (min-width: 1024px)": {
                 order: 2,
-                width: "35%",
+                width: "25%",
                 flexShrink: 0,
               },
             }}
@@ -59,7 +59,7 @@ function MainContent() {
             order: 2,
             "@media (min-width: 1024px)": {
               order: 1,
-              width: "65%",
+              width: "75%",
               minWidth: 0,
             },
           }}

@@ -27,9 +27,9 @@ function getGreetingIcon(hour: number) {
 
 function getAffirmation(hour: number): string {
   if (hour < 5) return "Rest well — tomorrow is a fresh start.";
-  if (hour < 12) return "Small steps make big progress.";
-  if (hour < 17) return "Keep the momentum going.";
-  if (hour < 21) return "Wrap up strong, you're almost there.";
+  if (hour < 12) return "Small steps make big progress!";
+  if (hour < 17) return "Keep up the good work!"!
+  if (hour < 21) return "Wrap up strong, you're almost there!";
   return "Time to slow down and recharge.";
 }
 
@@ -65,7 +65,7 @@ function Header() {
         margin: 3,
       }}
     >
-      <Box sx={{ textAlign: "right" }}>
+      <Box sx={{ textAlign: "left" }}>
         <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
           <Typography variant="h1" sx={{ textTransform: "none" }}>
             {getGreeting(hour)}

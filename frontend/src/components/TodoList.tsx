@@ -108,6 +108,7 @@ function TodoList() {
           key={group.id ?? "uncategorized"}
           title={group.title}
           todos={group.todos!}
+          categoryId={group.id}
         />
       ))}
     </Box>

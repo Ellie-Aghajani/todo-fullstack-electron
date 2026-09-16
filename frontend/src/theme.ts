@@ -1,4 +1,5 @@
-import { createTheme, type Theme } from "@mui/material/styles";
+import { createTheme } from "@mui/material/styles";
+import type { Theme } from "@mui/material/styles";
 
 declare module "@mui/material/styles" {
   interface Palette {
@@ -17,12 +18,12 @@ declare module "@mui/material/styles" {
 }
 
 export const cardColors = {
-  peach: { light: "#FFD9B3", dark: "#8a5a33" },
-  yellow: { light: "#FFF3B0", dark: "#8a7a2e" },
-  mint: { light: "#C8F0DE", dark: "#2e6b52" },
-  blue: { light: "#CFE3FA", dark: "#2e4d73" },
-  lavender: { light: "#E6DEFA", dark: "#4a3b73" },
-  pink: { light: "#FBD3DE", dark: "#7a3347" },
+peach:    { light: "#FFD9B3", dark: "#9A6A45" },
+yellow:   { light: "#FFF3B0", dark: "#8F8142" },
+mint:     { light: "#C8F0DE", dark: "#3F785C" },
+blue:     { light: "#CFE3FA", dark: "#426F9F" },
+lavender: { light: "#E6DEFA", dark: "#69568F" },
+pink:     { light: "#FBD3DE", dark: "#965A6C" },
 } as const;
 
 export type CardColorName = keyof typeof cardColors;
@@ -52,7 +53,7 @@ export function getTheme(mode: "light" | "dark") {
         secondary: mode === "light" ? "#5A5D66" : "#9CA3AF",
       },
       highlight: {
-        main: mode === "light" ? "#eff5f6" : "#1e1348",
+        main: mode === "light" ? "#eff5f6" : "#254b6a",
       },
       stats: {
         total: "#f59e0b",
@@ -159,9 +160,6 @@ export function getTheme(mode: "light" | "dark") {
             backgroundColor: mode === "light" ? "#ffffff" : "#0d1b2f",
           },
           input: {
-            // Overrides the browser's default autofill background
-            // (usually a strong yellow/blue tint) so it matches the
-            // theme instead of the browser's own styling.
             "&:-webkit-autofill": {
               WebkitBoxShadow: `0 0 0 100px ${mode === "light" ? "#ffffff" : "#0d1b2f"} inset`,
               WebkitTextFillColor: mode === "light" ? "#041836" : "#f1f1f1",
