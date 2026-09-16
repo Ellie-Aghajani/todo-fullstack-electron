@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material/styles";
+import { createTheme, type Theme } from "@mui/material/styles";
 
 declare module "@mui/material/styles" {
   interface Palette {
@@ -15,6 +15,17 @@ declare module "@mui/material/styles" {
     stats?: Partial<Palette["stats"]>;
   }
 }
+
+export const cardColors = {
+  peach: { light: "#FFD9B3", dark: "#8a5a33" },
+  yellow: { light: "#FFF3B0", dark: "#8a7a2e" },
+  mint: { light: "#C8F0DE", dark: "#2e6b52" },
+  blue: { light: "#CFE3FA", dark: "#2e4d73" },
+  lavender: { light: "#E6DEFA", dark: "#4a3b73" },
+  pink: { light: "#FBD3DE", dark: "#7a3347" },
+} as const;
+
+export type CardColorName = keyof typeof cardColors;
 
 export function getTheme(mode: "light" | "dark") {
   return createTheme({
@@ -33,18 +44,18 @@ export function getTheme(mode: "light" | "dark") {
         main: "#0068ac",
       },
       background: {
-        default: mode === "light" ? "#f1f1f1" : "#1a1918",
-        paper: mode === "light" ? "#FFFFFF" : "#2e2c2b",
+        default: mode === "light" ? "#cdeaf5" : "#040e1f",
+        paper: mode === "light" ? "#f7f4e7" : "#013365",
       },
       text: {
-        primary: mode === "light" ? "#2e2c2b" : "#f1f1f1",
+        primary: mode === "light" ? "#041836" : "#f1f1f1",
         secondary: mode === "light" ? "#5A5D66" : "#9CA3AF",
       },
       highlight: {
-        main: mode === "light" ? "#eef2ff" : "#1e2240",
+        main: mode === "light" ? "#eff5f6" : "#1e1348",
       },
       stats: {
-        total: "#3b82f6",
+        total: "#f59e0b",
         completed: "#22c55e",
         remaining: "#a855f7",
       },
@@ -69,18 +80,18 @@ export function getTheme(mode: "light" | "dark") {
       button: {
         textTransform: "none",
         fontWeight: 500,
-        fontSize: "1rem", // xl and above (1536px+) — default/base
+        fontSize: "1rem",
         "@media (max-width: 1535.95px)": {
-          fontSize: "0.95rem", // lg (1200–1535px)
+          fontSize: "0.95rem",
         },
         "@media (max-width: 1199.95px)": {
-          fontSize: "0.85rem", // md (900–1199px)
+          fontSize: "0.85rem",
         },
         "@media (max-width: 899.95px)": {
-          fontSize: "0.75rem", // sm (600–899px)
+          fontSize: "0.75rem",
         },
         "@media (max-width: 599.95px)": {
-          fontSize: "0.6rem", // xs (0–599px)
+          fontSize: "0.6rem",
         },
       },
     },
@@ -88,7 +99,7 @@ export function getTheme(mode: "light" | "dark") {
       MuiButton: {
         styleOverrides: {
           root: {
-            borderRadius: 20,
+            borderRadius: 999,
             paddingTop: 4,
             paddingBottom: 4,
             margin: 4,
@@ -112,14 +123,51 @@ export function getTheme(mode: "light" | "dark") {
           {
             props: { variant: "contained", color: "inherit" },
             style: {
-              backgroundColor: mode === "light" ? "#e5e7eb" : "#3a3937",
-              color: mode === "light" ? "#2e2c2b" : "#f1f1f1",
+              backgroundColor: mode === "light" ? "#ffffff" : "#0d2a45",
+              color: mode === "light" ? "#041836" : "#f1f1f1",
               "&:hover": {
-                backgroundColor: mode === "light" ? "#d1d5db" : "#4a4947",
+                backgroundColor: mode === "light" ? "#bfe0ef" : "#123a5e",
               },
             },
           },
+          {
+            props: { variant: "outlined", color: "primary" },
+            style: {
+              borderColor: "#0068ac",
+              color: "#0068ac",
+              backgroundColor: "#fff",
+              "&:hover": {
+                backgroundColor: mode === "light" ? "#eaf4fa" : "#0d2a45",
+                borderColor: "#00568c",
+              },
+            },
+          },
+          {
+            props: { variant: "outlined", color: "error" },
+            style: ({ theme }: { theme: Theme }) => ({
+              borderColor: theme.palette.error.main,
+              "&:hover": {
+                backgroundColor: mode === "light" ? "#fdecea" : "#3a1a1a",
+              },
+            }),
+          },
         ],
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            backgroundColor: mode === "light" ? "#ffffff" : "#0d1b2f",
+          },
+          input: {
+            // Overrides the browser's default autofill background
+            // (usually a strong yellow/blue tint) so it matches the
+            // theme instead of the browser's own styling.
+            "&:-webkit-autofill": {
+              WebkitBoxShadow: `0 0 0 100px ${mode === "light" ? "#ffffff" : "#0d1b2f"} inset`,
+              WebkitTextFillColor: mode === "light" ? "#041836" : "#f1f1f1",
+            },
+          },
+        },
       },
     },
   });

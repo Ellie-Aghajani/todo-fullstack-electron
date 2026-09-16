@@ -35,7 +35,7 @@ function FilterBar() {
         <Button
           size="small"
           key={option}
-          variant="contained"
+          variant="outlined"
           color={filter === option ? "primary" : "inherit"}
           onClick={() => {
             dispatch(setFilter(option));
@@ -51,7 +51,7 @@ function FilterBar() {
         <Button
           size="small"
           key={category.id}
-          variant="contained"
+          variant="outlined"
           color={selectedCategoryId === category.id ? "primary" : "inherit"}
           onClick={() =>
             dispatch(

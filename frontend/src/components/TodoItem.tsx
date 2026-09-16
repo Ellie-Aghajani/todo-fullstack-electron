@@ -10,6 +10,7 @@ import {
   TextField,
   Stack,
   Button,
+  Box,
 } from "@mui/material";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { toggleTodo, deleteTodo, renameTodo } from "../api/todos";
@@ -30,8 +31,8 @@ function TodoItem({ todo }: { todo: Todo }) {
         old?.map((t) =>
           t.id === todoBeingToggled.id
             ? { ...t, isComplete: !t.isComplete }
-            : t,
-        ),
+            : t
+        )
       );
       return { previousTodos };
     },
@@ -49,7 +50,7 @@ function TodoItem({ todo }: { todo: Todo }) {
       await queryClient.cancelQueries({ queryKey: ["todos"] });
       const previousTodos = queryClient.getQueryData<Todo[]>(["todos"]);
       queryClient.setQueryData<Todo[]>(["todos"], (old) =>
-        old?.filter((t) => t.id !== idBeingDeleted),
+        old?.filter((t) => t.id !== idBeingDeleted)
       );
       return { previousTodos };
     },
@@ -80,79 +81,77 @@ function TodoItem({ todo }: { todo: Todo }) {
   }
 
   return (
-    <ListItem
-      secondaryAction={
-        !isEditing && (
-          <>
-            {/* Tablet and up: inline text buttons. Hidden below the "sm"
-                breakpoint via theme-driven CSS, not a JS media query hook. */}
-            <Stack
-              direction="row"
-              spacing={1}
-              sx={{ display: { xs: "none", sm: "flex" } }}
-            >
-              <Button size="small" onClick={() => setIsEditing(true)}>
-                Update
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                color="error"
-                onClick={() => deleteMutation.mutate(todo.id)}
-              >
-                Delete
-              </Button>
-            </Stack>
-
-            {/* Mobile: collapsed into the overflow menu instead. */}
-            <IconButton
-              onClick={(e) => setMenuAnchor(e.currentTarget)}
-              sx={{ display: { xs: "inline-flex", sm: "none" } }}
-            >
-              <MoreHorizIcon />
-            </IconButton>
-          </>
-        )
-      }
-    >
-      <Checkbox
-        checked={todo.isComplete}
-        onChange={() => toggleMutation.mutate(todo)}
-      />
-
-      {isEditing ? (
-        <form onSubmit={handleRenameSubmit} style={{ flex: 1 }}>
-          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-            <TextField
-              size="small"
-              value={draftTitle}
-              onChange={(e) => setDraftTitle(e.target.value)}
-              autoFocus
-              fullWidth
-            />
-            <IconButton type="submit" size="small">
-              ✓
-            </IconButton>
-            <IconButton size="small" onClick={() => setIsEditing(false)}>
-              ✕
-            </IconButton>
-          </Stack>
-        </form>
-      ) : (
-        <ListItemText
-          primary={todo.title}
-          sx={{
-            textDecoration: todo.isComplete ? "line-through" : "none",
-            color: (t) =>
-              todo.isComplete
-                ? t.palette.text.secondary
-                : t.palette.text.primary,
-          }}
+    <ListItem sx={{ display: "block", minWidth: 0 }}>
+      <Box sx={{ display: "flex", alignItems: "flex-start", minWidth: 0 }}>
+        <Checkbox
+          checked={todo.isComplete}
+          onChange={() => toggleMutation.mutate(todo)}
         />
+
+        {isEditing ? (
+          <form onSubmit={handleRenameSubmit} style={{ flex: 1, minWidth: 0 }}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <TextField
+                size="small"
+                value={draftTitle}
+                onChange={(e) => setDraftTitle(e.target.value)}
+                autoFocus
+                fullWidth
+              />
+              <IconButton type="submit" size="small">
+                ✓
+              </IconButton>
+              <IconButton size="small" onClick={() => setIsEditing(false)}>
+                ✕
+              </IconButton>
+            </Stack>
+          </form>
+        ) : (
+          <ListItemText
+            primary={todo.title}
+            sx={{
+              textDecoration: todo.isComplete ? "line-through" : "none",
+              color: (t) =>
+                todo.isComplete
+                  ? t.palette.text.secondary
+                  : t.palette.text.primary,
+              overflowWrap: "break-word",
+              wordBreak: "break-word",
+              minWidth: 0,
+            }}
+          />
+        )}
+      </Box>
+
+      {!isEditing && (
+        <Box sx={{ display: "flex", justifyContent: "flex-end", marginTop: 0.5 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ display: { xs: "none", sm: "flex" } }}
+          >
+            <Button size="small" onClick={() => setIsEditing(true)}>
+              Update
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              color="error"
+              onClick={() => deleteMutation.mutate(todo.id)}
+            >
+              Delete
+            </Button>
+          </Stack>
+
+          <IconButton
+            onClick={(e) => setMenuAnchor(e.currentTarget)}
+            sx={{ display: { xs: "inline-flex", sm: "none" } }}
+          >
+            <MoreHorizIcon />
+          </IconButton>
+        </Box>
       )}
 
-      {/* Always rendered — inactive/invisible until menuAnchor is set,
-          so there's no need to conditionally mount/unmount it. */}
       <Menu
         anchorEl={menuAnchor}
         open={Boolean(menuAnchor)}
