@@ -93,23 +93,25 @@ function Sidebar() {
   ];
 
   return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: { xs: 0, md: DRAWER_WIDTH },
-        flexShrink: 0,
-        display: { xs: "none", md: "block" },
-        "& .MuiDrawer-paper": {
-          width: DRAWER_WIDTH,
-          boxSizing: "border-box",
-          position: "relative",
-          border: "none",
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-        },
-      }}
-    >
+<Drawer
+  variant="permanent"
+  sx={{
+    width: { xs: 0, md: DRAWER_WIDTH },
+    flexShrink: 0,
+    display: { xs: "none", md: "block" },
+    "& .MuiDrawer-paper": {
+      width: DRAWER_WIDTH,
+      boxSizing: "border-box",
+      position: "fixed",
+      top: 0,
+      left: 0,
+      height: "100vh",
+      border: "none",
+      display: "flex",
+      flexDirection: "column",
+    },
+  }}
+>
       <Box sx={{ padding: 3 }}>
         <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
           <ChecklistIcon color="primary" />
