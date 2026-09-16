@@ -16,10 +16,17 @@ public class CategoriesController : ControllerBase
         _context = context;
     }
 
+    private string? CurrentUserId => HttpContext.Items["UserId"] as string;
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Category>>> GetAll()
     {
-        var categories = await _context.Categories.AsNoTracking().ToListAsync();
+        if (CurrentUserId == null) return Unauthorized();
+
+        var categories = await _context.Categories
+            .Where(c => c.UserId == CurrentUserId)
+            .AsNoTracking()
+            .ToListAsync();
         return Ok(categories);
     }
 
@@ -28,18 +35,23 @@ public class CategoriesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Category>> Create(CreateCategoryRequest request)
     {
-        var category = Category.Create(request.Name);
+        if (CurrentUserId == null) return Unauthorized();
+
+        var category = Category.Create(request.Name, CurrentUserId);
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetAll), new { id = category.Id }, category);
     }
+
     public record UpdateCategoryRequest(string Name);
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, UpdateCategoryRequest request)
     {
+        if (CurrentUserId == null) return Unauthorized();
+
         var category = await _context.Categories.FindAsync(id);
-        if (category == null) return NotFound();
+        if (category == null || category.UserId != CurrentUserId) return NotFound();
 
         if (string.IsNullOrWhiteSpace(request.Name))
         {
@@ -54,8 +66,10 @@ public class CategoriesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        if (CurrentUserId == null) return Unauthorized();
+
         var category = await _context.Categories.FindAsync(id);
-        if (category == null) return NotFound();
+        if (category == null || category.UserId != CurrentUserId) return NotFound();
 
         try
         {
@@ -64,9 +78,6 @@ public class CategoriesController : ControllerBase
         }
         catch (DbUpdateException)
         {
-            // This is the FK edge case from the plan: SQL Server rejected the
-            // delete because Todos still reference this Category. We translate
-            // that into a clear 409 Conflict instead of a raw 500 error.
             return Conflict("Cannot delete a category that still has todos assigned to it.");
         }
 

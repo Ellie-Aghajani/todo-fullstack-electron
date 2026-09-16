@@ -13,29 +13,33 @@ public class TodosController : ControllerBase
     private readonly ITodoRepository _repository;
     private readonly TodoActivityLogger _logger;
 
-
     public TodosController(ITodoRepository repository, RequestAuditor auditor, TodoActivityLogger logger)
     {
         _repository = repository;
-
         _logger = logger;
-        // We don't need to do anything else with `auditor` here — just asking
-        // for it in the constructor is enough to make .NET's DI container
-        // create one and run its constructor, which is where the leak happens.
     }
+
+    // Reads the UserId the FirebaseAuthMiddleware placed on this request.
+    // Returns null if the request wasn't authenticated.
+    private string? CurrentUserId => HttpContext.Items["UserId"] as string;
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Todo>>> GetAll()
     {
+        if (CurrentUserId == null) return Unauthorized();
+
         var todos = await _repository.GetAllAsync();
-        return Ok(todos);
+        var userTodos = todos.Where(t => t.UserId == CurrentUserId);
+        return Ok(userTodos);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Todo>> GetById(int id)
     {
+        if (CurrentUserId == null) return Unauthorized();
+
         var todo = await _repository.GetByIdAsync(id);
-        if (todo == null) return NotFound();
+        if (todo == null || todo.UserId != CurrentUserId) return NotFound();
         return Ok(todo);
     }
 
@@ -44,30 +48,31 @@ public class TodosController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Todo>> Create(CreateTodoRequest request)
     {
-        var todo = Todo.Create(request.Title, request.CategoryId);
+        if (CurrentUserId == null) return Unauthorized();
+
+        var todo = Todo.Create(request.Title, request.CategoryId, CurrentUserId);
         try
         {
             await _repository.AddAsync(todo);
             await _repository.SaveChangesAsync();
             _logger.Record($"Created todo '{todo.Title}'");
-
         }
         catch (DbUpdateException)
         {
-            // This is the FK edge case from the plan: SQL Server rejected the
-            // insert because the CategoryId doesn't exist. We translate that
-            // into a clear 400 Bad Request instead of a raw 500 error.
             return BadRequest($"Category with ID {request.CategoryId} does not exist.");
         }
         return CreatedAtAction(nameof(GetById), new { id = todo.Id }, todo);
     }
+
     public record UpdateTodoRequest(bool IsComplete, string? Title);
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, UpdateTodoRequest request)
     {
+        if (CurrentUserId == null) return Unauthorized();
+
         var todo = await _repository.GetByIdAsync(id);
-        if (todo == null) return NotFound();
+        if (todo == null || todo.UserId != CurrentUserId) return NotFound();
 
         if (request.IsComplete && !todo.IsComplete)
         {
@@ -86,22 +91,31 @@ public class TodosController : ControllerBase
         await _repository.SaveChangesAsync();
         return Ok(todo);
     }
-    [HttpDelete]
-    public async Task<IActionResult> DeleteAll()
-    {
-        var todos = await _repository.GetAllAsync();
-        foreach (var todo in todos)
-        {
-            await _repository.DeleteAsync(todo.Id);
-        }
-        await _repository.SaveChangesAsync();
-        return NoContent();
-    }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        if (CurrentUserId == null) return Unauthorized();
+
+        var todo = await _repository.GetByIdAsync(id);
+        if (todo == null || todo.UserId != CurrentUserId) return NotFound();
+
         await _repository.DeleteAsync(id);
+        await _repository.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteAll()
+    {
+        if (CurrentUserId == null) return Unauthorized();
+
+        var todos = await _repository.GetAllAsync();
+        var userTodos = todos.Where(t => t.UserId == CurrentUserId);
+        foreach (var todo in userTodos)
+        {
+            await _repository.DeleteAsync(todo.Id);
+        }
         await _repository.SaveChangesAsync();
         return NoContent();
     }

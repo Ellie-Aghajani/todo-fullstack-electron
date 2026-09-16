@@ -2,8 +2,18 @@ using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
 using TodoApi.Repositories;
 using TodoApi.Services;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using TodoApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+FirebaseApp.Create(new AppOptions
+{
+    Credential = GoogleCredential.FromFile("firebase-service-account.json"),
+    ProjectId = "todo-85812",
+});
 
 builder.Services.AddCors(options =>
 {
@@ -27,6 +37,7 @@ builder.Services.AddScoped<RequestAuditor>();
 
 var app = builder.Build();
 app.UseCors("AllowFrontendDev");
+app.UseMiddleware<FirebaseAuthMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

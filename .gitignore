@@ -14,3 +14,6 @@ release/
 .vscode/
 .idea/
 .Development.json/
+
+
+backend/TodoApi/firebase-service-account.json
