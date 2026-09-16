@@ -1,5 +1,21 @@
 import { createTheme } from "@mui/material/styles";
 
+declare module "@mui/material/styles" {
+  interface Palette {
+    highlight: Palette["primary"];
+    stats: {
+      total: string;
+      completed: string;
+      remaining: string;
+    };
+  }
+
+  interface PaletteOptions {
+    highlight?: Partial<Palette["primary"]>;
+    stats?: Partial<Palette["stats"]>;
+  }
+}
+
 export function getTheme(mode: "light" | "dark") {
   return createTheme({
     breakpoints: {
@@ -23,6 +39,14 @@ export function getTheme(mode: "light" | "dark") {
       text: {
         primary: mode === "light" ? "#2e2c2b" : "#f1f1f1",
         secondary: mode === "light" ? "#5A5D66" : "#9CA3AF",
+      },
+      highlight: {
+        main: mode === "light" ? "#eef2ff" : "#1e2240",
+      },
+      stats: {
+        total: "#3b82f6",
+        completed: "#22c55e",
+        remaining: "#a855f7",
       },
     },
     shape: {

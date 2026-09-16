@@ -4,14 +4,22 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 export type Filter = "all" | "active" | "completed";
 export type Theme = "light" | "dark";
 
+const AFFIRMATION_KEY = "todo-app-affirmation";
+
+function loadAffirmation(): string {
+  return localStorage.getItem(AFFIRMATION_KEY) ?? "Progress, not perfection.";
+}
+
 interface UiState {
   filter: Filter;
   theme: Theme;
+  affirmation: string;
 }
 
 const initialState: UiState = {
   filter: "all",
   theme: "light",
+  affirmation: loadAffirmation(),
 };
 
 const uiSlice = createSlice({
@@ -24,8 +32,12 @@ const uiSlice = createSlice({
     toggleTheme: (state) => {
       state.theme = state.theme === "light" ? "dark" : "light";
     },
+    setAffirmation: (state, action: PayloadAction<string>) => {
+      state.affirmation = action.payload;
+      localStorage.setItem(AFFIRMATION_KEY, action.payload);
+    },
   },
 });
 
-export const { setFilter, toggleTheme } = uiSlice.actions;
+export const { setFilter, toggleTheme, setAffirmation } = uiSlice.actions;
 export default uiSlice.reducer;
