@@ -14,12 +14,14 @@ interface UiState {
   filter: Filter;
   theme: Theme;
   affirmation: string;
+  selectedCategoryId: number | null;
 }
 
 const initialState: UiState = {
   filter: "all",
   theme: "light",
   affirmation: loadAffirmation(),
+  selectedCategoryId: null,
 };
 
 const uiSlice = createSlice({
@@ -36,8 +38,12 @@ const uiSlice = createSlice({
       state.affirmation = action.payload;
       localStorage.setItem(AFFIRMATION_KEY, action.payload);
     },
+    setSelectedCategoryId: (state, action: PayloadAction<number | null>) => {
+      state.selectedCategoryId = action.payload;
+    },
   },
 });
 
-export const { setFilter, toggleTheme, setAffirmation } = uiSlice.actions;
+export const { setFilter, toggleTheme, setAffirmation, setSelectedCategoryId } =
+  uiSlice.actions;
 export default uiSlice.reducer;

@@ -9,14 +9,17 @@ function TodoList() {
     queryFn: fetchTodos,
   });
   const filter = useAppSelector((state) => state.ui.filter);
+  const selectedCategoryId = useAppSelector((state) => state.ui.selectedCategoryId);
 
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Something went wrong loading todos.</p>;
 
   const visibleTodos = todos?.filter((todo) => {
-    if (filter === "active") return !todo.isComplete;
-    if (filter === "completed") return todo.isComplete;
-    return true; // "all"
+    const matchesStatus =
+      filter === "active" ? !todo.isComplete : filter === "completed" ? todo.isComplete : true;
+    const matchesCategory =
+      selectedCategoryId === null || todo.categoryId === selectedCategoryId;
+    return matchesStatus && matchesCategory;
   });
 
   return (
