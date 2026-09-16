@@ -39,9 +39,7 @@ function FilterBar() {
           color={filter === option ? "primary" : "inherit"}
           onClick={() => {
             dispatch(setFilter(option));
-            if (option === "all") {
-              dispatch(setSelectedCategoryId(null));
-            }
+            dispatch(setSelectedCategoryId(null));
           }}
           sx={{ minWidth: 100 }}
         >

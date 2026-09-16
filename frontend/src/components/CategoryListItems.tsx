@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   Stack,
@@ -26,8 +27,12 @@ import {
   deleteCategory,
   renameCategory,
 } from "../api/categories";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { setSelectedCategoryId } from "../store/uiSlice";
 
 function CategoryListItems() {
+  const dispatch = useAppDispatch();
+  const selectedCategoryId = useAppSelector((state) => state.ui.selectedCategoryId);
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
   const [newName, setNewName] = useState("");
@@ -61,8 +66,7 @@ function CategoryListItems() {
   });
 
   const renameMutation = useMutation({
-    mutationFn: ({ id, name }: { id: number; name: string }) =>
-      renameCategory(id, name),
+    mutationFn: ({ id, name }: { id: number; name: string }) => renameCategory(id, name),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       setEditingId(null);
@@ -154,6 +158,7 @@ function CategoryListItems() {
         ) : (
           <ListItem
             key={category.id}
+            disablePadding
             secondaryAction={
               <Stack direction="row">
                 <IconButton
@@ -165,18 +170,27 @@ function CategoryListItems() {
                 >
                   <EditIcon fontSize="small" />
                 </IconButton>
-                <IconButton
-                  size="small"
-                  onClick={() => deleteMutation.mutate(category.id)}
-                >
+                <IconButton size="small" onClick={() => deleteMutation.mutate(category.id)}>
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               </Stack>
             }
           >
-            <ListItemText primary={category.name} sx={{ pl: 7 }} />
+            <ListItemButton
+              selected={selectedCategoryId === category.id}
+              onClick={() =>
+                dispatch(
+                  setSelectedCategoryId(
+                    selectedCategoryId === category.id ? null : category.id
+                  )
+                )
+              }
+              sx={{ pl: 7 }}
+            >
+              <ListItemText primary={category.name} />
+            </ListItemButton>
           </ListItem>
-        ),
+        )
       )}
 
       {categories && categories.length > 2 && (
@@ -186,11 +200,7 @@ function CategoryListItems() {
             onClick={() => setShowAll(!showAll)}
             sx={{ width: "100%", justifyContent: "flex-start", pl: 2, gap: 1 }}
           >
-            {showAll ? (
-              <ExpandLessIcon fontSize="small" />
-            ) : (
-              <ExpandMoreIcon fontSize="small" />
-            )}
+            {showAll ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
             <Typography variant="body2" color="text.secondary">
               {showAll ? "Show less" : `${hiddenCount} more`}
             </Typography>

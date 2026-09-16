@@ -27,7 +27,7 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import { fetchTodos, deleteAllTodos } from "../api/todos";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { toggleTheme, setFilter } from "../store/uiSlice";
+import { toggleTheme, setFilter, setSelectedCategoryId } from "../store/uiSlice";
 import type { Filter } from "../store/uiSlice";
 import CategoryListItems from "./CategoryListItems";
 
@@ -66,10 +66,30 @@ function Sidebar() {
     setIsConfirmOpen(true);
   }
 
-  const navItems: { label: string; icon: React.ReactNode; filter: Filter; count: number }[] = [
-    { label: "All Tasks", icon: <ChecklistIcon />, filter: "all", count: total },
-    { label: "Active", icon: <PlayArrowIcon />, filter: "active", count: activeCount },
-    { label: "Completed", icon: <CheckCircleIcon />, filter: "completed", count: completedCount },
+  const navItems: {
+    label: string;
+    icon: React.ReactNode;
+    filter: Filter;
+    count: number;
+  }[] = [
+    {
+      label: "All Tasks",
+      icon: <ChecklistIcon />,
+      filter: "all",
+      count: total,
+    },
+    {
+      label: "Active",
+      icon: <PlayArrowIcon />,
+      filter: "active",
+      count: activeCount,
+    },
+    {
+      label: "Completed",
+      icon: <CheckCircleIcon />,
+      filter: "completed",
+      count: completedCount,
+    },
   ];
 
   return (
@@ -112,14 +132,16 @@ function Sidebar() {
             <ListItemButton
               key={item.filter}
               selected={filter === item.filter}
-              onClick={() => dispatch(setFilter(item.filter))}
+              onClick={() => {
+                dispatch(setFilter(item.filter));
+                dispatch(setSelectedCategoryId(null));
+              }}
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.label} />
               <Chip label={item.count} size="small" />
             </ListItemButton>
           ))}
-
           <ListItemButton onClick={handleDeleteAllClick}>
             <ListItemIcon>
               <DeleteSweepIcon color="error" />
@@ -132,12 +154,18 @@ function Sidebar() {
       </Box>
 
       <Box sx={{ marginTop: "auto", padding: 3 }}>
-        <Stack direction="row" sx={{ alignItems: "center", justifyContent: "space-between" }}>
+        <Stack
+          direction="row"
+          sx={{ alignItems: "center", justifyContent: "space-between" }}
+        >
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <DarkModeIcon fontSize="small" />
             <Typography variant="body2">Dark Mode</Typography>
           </Stack>
-          <Switch checked={theme === "dark"} onChange={() => dispatch(toggleTheme())} />
+          <Switch
+            checked={theme === "dark"}
+            onChange={() => dispatch(toggleTheme())}
+          />
         </Stack>
       </Box>
 
