@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "./fetchWithAuth";
+
 export interface Todo {
   id: number;
   title: string;
@@ -8,14 +10,18 @@ export interface Todo {
 const BASE_URL = "http://localhost:5192/api/Todos";
 
 export async function fetchTodos(): Promise<Todo[]> {
-  const response = await fetch(BASE_URL);
+  const response = await fetchWithAuth(BASE_URL);
   if (!response.ok) {
     throw new Error("Failed to fetch todos");
   }
   return response.json();
 }
-export async function createTodo(title: string, categoryId: number): Promise<Todo> {
-  const response = await fetch(BASE_URL, {
+
+export async function createTodo(
+  title: string,
+  categoryId: number,
+): Promise<Todo> {
+  const response = await fetchWithAuth(BASE_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title, categoryId }),
@@ -25,8 +31,9 @@ export async function createTodo(title: string, categoryId: number): Promise<Tod
   }
   return response.json();
 }
+
 export async function toggleTodo(todo: Todo): Promise<Todo> {
-  const response = await fetch(`${BASE_URL}/${todo.id}`, {
+  const response = await fetchWithAuth(`${BASE_URL}/${todo.id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...todo, isComplete: !todo.isComplete }),
@@ -36,15 +43,18 @@ export async function toggleTodo(todo: Todo): Promise<Todo> {
   }
   return response.json();
 }
+
 export async function deleteTodo(id: number): Promise<void> {
-  const response = await fetch(`${BASE_URL}/${id}`, { method: "DELETE" });
+  const response = await fetchWithAuth(`${BASE_URL}/${id}`, {
+    method: "DELETE",
+  });
   if (!response.ok) {
     throw new Error("Failed to delete todo");
   }
 }
 
 export async function renameTodo(todo: Todo, newTitle: string): Promise<Todo> {
-  const response = await fetch(`${BASE_URL}/${todo.id}`, {
+  const response = await fetchWithAuth(`${BASE_URL}/${todo.id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...todo, title: newTitle }),
@@ -54,8 +64,9 @@ export async function renameTodo(todo: Todo, newTitle: string): Promise<Todo> {
   }
   return response.json();
 }
+
 export async function deleteAllTodos(): Promise<void> {
-  const response = await fetch(BASE_URL, { method: "DELETE" });
+  const response = await fetchWithAuth(BASE_URL, { method: "DELETE" });
   if (!response.ok) {
     throw new Error("Failed to delete all todos");
   }

@@ -27,9 +27,15 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import { fetchTodos, deleteAllTodos } from "../api/todos";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { toggleTheme, setFilter, setSelectedCategoryId } from "../store/uiSlice";
+import {
+  toggleTheme,
+  setFilter,
+  setSelectedCategoryId,
+} from "../store/uiSlice";
 import type { Filter } from "../store/uiSlice";
 import CategoryListItems from "./CategoryListItems";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { signOutUser } from "../api/auth";
 
 const DRAWER_WIDTH = 260;
 
@@ -49,7 +55,7 @@ function Sidebar() {
   const total = todos?.length ?? 0;
   const activeCount = todos?.filter((t) => !t.isComplete).length ?? 0;
   const completedCount = todos?.filter((t) => t.isComplete).length ?? 0;
-
+  const email = useAppSelector((state) => state.auth.email);
   const deleteAllMutation = useMutation({
     mutationFn: deleteAllTodos,
     onSuccess: () => {
@@ -93,25 +99,25 @@ function Sidebar() {
   ];
 
   return (
-<Drawer
-  variant="permanent"
-  sx={{
-    width: { xs: 0, md: DRAWER_WIDTH },
-    flexShrink: 0,
-    display: { xs: "none", md: "block" },
-    "& .MuiDrawer-paper": {
-      width: DRAWER_WIDTH,
-      boxSizing: "border-box",
-      position: "fixed",
-      top: 0,
-      left: 0,
-      height: "100vh",
-      border: "none",
-      display: "flex",
-      flexDirection: "column",
-    },
-  }}
->
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: { xs: 0, md: DRAWER_WIDTH },
+        flexShrink: 0,
+        display: { xs: "none", md: "block" },
+        "& .MuiDrawer-paper": {
+          width: DRAWER_WIDTH,
+          boxSizing: "border-box",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          height: "100vh",
+          border: "none",
+          display: "flex",
+          flexDirection: "column",
+        },
+      }}
+    >
       <Box sx={{ padding: 3 }}>
         <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
           <ChecklistIcon color="primary" />
@@ -156,9 +162,23 @@ function Sidebar() {
       </Box>
 
       <Box sx={{ marginTop: "auto", padding: 3 }}>
+        {email && (
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ marginBottom: 1, wordBreak: "break-word" }}
+          >
+            {email}
+          </Typography>
+        )}
+
         <Stack
           direction="row"
-          sx={{ alignItems: "center", justifyContent: "space-between" }}
+          sx={{
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 2,
+          }}
         >
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <DarkModeIcon fontSize="small" />
@@ -169,6 +189,16 @@ function Sidebar() {
             onChange={() => dispatch(toggleTheme())}
           />
         </Stack>
+
+        <Button
+          variant="outlined"
+          color="inherit"
+          fullWidth
+          startIcon={<LogoutIcon />}
+          onClick={() => signOutUser()}
+        >
+          Sign Out
+        </Button>
       </Box>
 
       <Dialog open={isConfirmOpen} onClose={() => setIsConfirmOpen(false)}>
