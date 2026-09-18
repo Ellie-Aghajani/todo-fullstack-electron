@@ -9,9 +9,15 @@ using TodoApi.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 
+var firebaseCredentialsJson = Environment.GetEnvironmentVariable("FIREBASE_CREDENTIALS_JSON");
+
+var credential = !string.IsNullOrEmpty(firebaseCredentialsJson)
+    ? GoogleCredential.FromJson(firebaseCredentialsJson)
+    : GoogleCredential.FromFile("firebase-service-account.json");
+
 FirebaseApp.Create(new AppOptions
 {
-    Credential = GoogleCredential.FromFile("firebase-service-account.json"),
+    Credential = credential,
     ProjectId = "todo-85812",
 });
 
