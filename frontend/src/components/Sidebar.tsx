@@ -25,25 +25,23 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { fetchTodos, deleteAllTodos } from "../api/todos";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import {
-  toggleTheme,
-  setFilter,
-  setSelectedCategoryId,
-} from "../store/uiSlice";
+import { toggleTheme, setFilter, closeSidebar } from "../store/uiSlice";
 import type { Filter } from "../store/uiSlice";
 import CategoryListItems from "./CategoryListItems";
-import LogoutIcon from "@mui/icons-material/Logout";
 import { signOutUser } from "../api/auth";
 
 const DRAWER_WIDTH = 260;
 
 function Sidebar() {
   const dispatch = useAppDispatch();
-  const queryClient = useQueryClient();
   const filter = useAppSelector((state) => state.ui.filter);
   const theme = useAppSelector((state) => state.ui.theme);
+  const isSidebarOpen = useAppSelector((state) => state.ui.isSidebarOpen);
+  const email = useAppSelector((state) => state.auth.email);
+  const queryClient = useQueryClient();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [noTodosMessage, setNoTodosMessage] = useState(false);
 
@@ -55,7 +53,7 @@ function Sidebar() {
   const total = todos?.length ?? 0;
   const activeCount = todos?.filter((t) => !t.isComplete).length ?? 0;
   const completedCount = todos?.filter((t) => t.isComplete).length ?? 0;
-  const email = useAppSelector((state) => state.auth.email);
+
   const deleteAllMutation = useMutation({
     mutationFn: deleteAllTodos,
     onSuccess: () => {
@@ -72,52 +70,14 @@ function Sidebar() {
     setIsConfirmOpen(true);
   }
 
-  const navItems: {
-    label: string;
-    icon: React.ReactNode;
-    filter: Filter;
-    count: number;
-  }[] = [
-    {
-      label: "All Tasks",
-      icon: <ChecklistIcon />,
-      filter: "all",
-      count: total,
-    },
-    {
-      label: "Active",
-      icon: <PlayArrowIcon />,
-      filter: "active",
-      count: activeCount,
-    },
-    {
-      label: "Completed",
-      icon: <CheckCircleIcon />,
-      filter: "completed",
-      count: completedCount,
-    },
+  const navItems: { label: string; icon: React.ReactNode; filter: Filter; count: number }[] = [
+    { label: "All Tasks", icon: <ChecklistIcon />, filter: "all", count: total },
+    { label: "Active", icon: <PlayArrowIcon />, filter: "active", count: activeCount },
+    { label: "Completed", icon: <CheckCircleIcon />, filter: "completed", count: completedCount },
   ];
 
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: { xs: 0, md: DRAWER_WIDTH },
-        flexShrink: 0,
-        display: { xs: "none", md: "block" },
-        "& .MuiDrawer-paper": {
-          width: DRAWER_WIDTH,
-          boxSizing: "border-box",
-          position: "fixed",
-          top: 0,
-          left: 0,
-          height: "100vh",
-          border: "none",
-          display: "flex",
-          flexDirection: "column",
-        },
-      }}
-    >
+  const drawerContent = (
+    <>
       <Box sx={{ padding: 3 }}>
         <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
           <ChecklistIcon color="primary" />
@@ -142,7 +102,7 @@ function Sidebar() {
               selected={filter === item.filter}
               onClick={() => {
                 dispatch(setFilter(item.filter));
-                dispatch(setSelectedCategoryId(null));
+                dispatch(closeSidebar());
               }}
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
@@ -150,6 +110,7 @@ function Sidebar() {
               <Chip label={item.count} size="small" />
             </ListItemButton>
           ))}
+
           <ListItemButton onClick={handleDeleteAllClick}>
             <ListItemIcon>
               <DeleteSweepIcon color="error" />
@@ -174,20 +135,13 @@ function Sidebar() {
 
         <Stack
           direction="row"
-          sx={{
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 2,
-          }}
+          sx={{ alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}
         >
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <DarkModeIcon fontSize="small" />
             <Typography variant="body2">Dark Mode</Typography>
           </Stack>
-          <Switch
-            checked={theme === "dark"}
-            onChange={() => dispatch(toggleTheme())}
-          />
+          <Switch checked={theme === "dark"} onChange={() => dispatch(toggleTheme())} />
         </Stack>
 
         <Button
@@ -200,6 +154,50 @@ function Sidebar() {
           Sign Out
         </Button>
       </Box>
+    </>
+  );
+
+  return (
+    <>
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: { xs: 0, md: DRAWER_WIDTH },
+          flexShrink: 0,
+          display: { xs: "none", md: "block" },
+          "& .MuiDrawer-paper": {
+            width: DRAWER_WIDTH,
+            boxSizing: "border-box",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            height: "100vh",
+            border: "none",
+            display: "flex",
+            flexDirection: "column",
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+
+      <Drawer
+        variant="temporary"
+        open={isSidebarOpen}
+        onClose={() => dispatch(closeSidebar())}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: "block", md: "none" },
+          "& .MuiDrawer-paper": {
+            width: DRAWER_WIDTH,
+            boxSizing: "border-box",
+            display: "flex",
+            flexDirection: "column",
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
 
       <Dialog open={isConfirmOpen} onClose={() => setIsConfirmOpen(false)}>
         <DialogTitle>Delete all tasks?</DialogTitle>
@@ -208,11 +206,7 @@ function Sidebar() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsConfirmOpen(false)}>Cancel</Button>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={() => deleteAllMutation.mutate()}
-          >
+          <Button color="error" variant="contained" onClick={() => deleteAllMutation.mutate()}>
             Delete All
           </Button>
         </DialogActions>
@@ -228,7 +222,7 @@ function Sidebar() {
           There aren't any todos to delete.
         </Alert>
       </Snackbar>
-    </Drawer>
+    </>
   );
 }
 

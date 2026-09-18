@@ -6,9 +6,10 @@ import NightlightIcon from "@mui/icons-material/Nightlight";
 import Brightness5Icon from "@mui/icons-material/Brightness5";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
+import HomeIcon from "@mui/icons-material/Home";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { toggleTheme } from "../store/uiSlice";
-
+import { toggleSidebar } from "../store/uiSlice";
 function getGreeting(hour: number): string {
   if (hour < 5) return "Good night";
   if (hour < 12) return "Good morning";
@@ -28,7 +29,7 @@ function getGreetingIcon(hour: number) {
 function getAffirmation(hour: number): string {
   if (hour < 5) return "Rest well — tomorrow is a fresh start.";
   if (hour < 12) return "Small steps make big progress!";
-  if (hour < 17) return "Keep up the good work!"!
+  if (hour < 17) return "Keep up the good work!"!;
   if (hour < 21) return "Wrap up strong, you're almost there!";
   return "Time to slow down and recharge.";
 }
@@ -57,42 +58,51 @@ function Header() {
   });
 
   return (
-    <Stack
-      direction={{ xs: "column", sm: "row" }}
-      sx={{
-        justifyContent: "space-between",
-        alignItems: "flex-start",
-        margin: 3,
-      }}
-    >
-      <Box sx={{ textAlign: "left" }}>
-        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-          <Typography variant="h1" sx={{ textTransform: "none" }}>
-            {getGreeting(hour)}
+    <Box sx={{ margin: 0 }}>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        sx={{
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          margin: 3,
+        }}
+      >
+        
+        <Box sx={{ textAlign: "left" }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <Typography variant="h1" sx={{ textTransform: "none" }}>
+              {getGreeting(hour)}
+            </Typography>
+            {getGreetingIcon(hour)}
+          </Stack>
+          <Typography variant="body2" color="text.secondary">
+            {getAffirmation(hour)}
           </Typography>
-          {getGreetingIcon(hour)}
-        </Stack>
-        <Typography variant="body2" color="text.secondary">
-          {getAffirmation(hour)}
-        </Typography>
-      </Box>
+        </Box>
 
-      <Box>
-        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-          <Box>
-            <Typography variant="body1" sx={{ fontWeight: 500 }}>
-              {dateFormatted}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {timeFormatted}
-            </Typography>
-          </Box>
-          <IconButton onClick={() => dispatch(toggleTheme())} color="inherit">
-            {themeMode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
-          </IconButton>
-        </Stack>
-      </Box>
-    </Stack>
+        <Box>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <Box>
+              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                {dateFormatted}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {timeFormatted}
+              </Typography>
+            </Box>
+            <IconButton onClick={() => dispatch(toggleTheme())} color="inherit">
+              {themeMode === "light" ? <DarkModeIcon /> : <LightModeIcon />}
+            </IconButton>
+          </Stack>
+        </Box>
+        <IconButton
+          onClick={() => dispatch(toggleSidebar())}
+          sx={{ display: { xs: "inline-flex", md: "none" } }}
+        >
+          <HomeIcon />
+        </IconButton>
+      </Stack>
+    </Box>
   );
 }
 

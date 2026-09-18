@@ -15,6 +15,7 @@ interface UiState {
   theme: Theme;
   affirmation: string;
   selectedCategoryId: number | null;
+  isSidebarOpen: boolean;
 }
 
 const initialState: UiState = {
@@ -22,6 +23,7 @@ const initialState: UiState = {
   theme: "light",
   affirmation: loadAffirmation(),
   selectedCategoryId: null,
+  isSidebarOpen: false,
 };
 
 const uiSlice = createSlice({
@@ -41,9 +43,21 @@ const uiSlice = createSlice({
     setSelectedCategoryId: (state, action: PayloadAction<number | null>) => {
       state.selectedCategoryId = action.payload;
     },
+    toggleSidebar: (state) => {
+      state.isSidebarOpen = !state.isSidebarOpen;
+    },
+    closeSidebar: (state) => {
+      state.isSidebarOpen = false;
+    },
   },
 });
 
-export const { setFilter, toggleTheme, setAffirmation, setSelectedCategoryId } =
-  uiSlice.actions;
+export const {
+  setFilter,
+  toggleTheme,
+  setAffirmation,
+  setSelectedCategoryId,
+  toggleSidebar,
+  closeSidebar,
+} = uiSlice.actions;
 export default uiSlice.reducer;
