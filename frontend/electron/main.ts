@@ -1,6 +1,7 @@
-import { app, BrowserWindow, Menu } from "electron";
+import { app, BrowserWindow, Menu, Notification, ipcMain } from "electron";
 import path from "path";
 import Store from "electron-store";
+import { startStaticServer } from "./server";
 
 let mainWindow: BrowserWindow | null = null;
 const isDev = !app.isPackaged;
@@ -29,10 +30,15 @@ function getSavedBounds(): WindowBounds {
   return { width: 1000, height: 700 };
 }
 
-function createWindow() {
+const APP_NAME = "Todo App";
+
+app.setName(APP_NAME);
+
+async function createWindow() {
   const savedBounds = getSavedBounds();
 
   mainWindow = new BrowserWindow({
+    title: APP_NAME,
     ...savedBounds,
     webPreferences: {
       nodeIntegration: false,
@@ -45,7 +51,9 @@ function createWindow() {
     mainWindow.loadURL("http://localhost:5174");
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
+    const distPath = path.join(__dirname, "../dist");
+    const serverUrl = await startStaticServer(distPath);
+    mainWindow.loadURL(serverUrl);
   }
 
   mainWindow.on("resize", saveBounds);
@@ -71,9 +79,14 @@ function createMenu() {
     ...(isMac
       ? [
           {
-            label: app.getName(),
+            label: APP_NAME,
             submenu: [
-              { role: "about" as const },
+              {
+                label: `About ${APP_NAME}`,
+                click: () => {
+                  // no-op; this is just for the macOS app menu label
+                },
+              },
               { type: "separator" as const },
               { role: "quit" as const },
             ],
@@ -82,7 +95,14 @@ function createMenu() {
       : []),
     {
       label: "File",
-      submenu: [isMac ? { role: "close" as const } : { role: "quit" as const }],
+      submenu: [
+        isMac
+          ? { role: "close" as const }
+          : {
+              label: `Quit ${APP_NAME}`,
+              click: () => app.quit(),
+            },
+      ],
     },
     {
       label: "Edit",
@@ -115,10 +135,17 @@ function createMenu() {
   Menu.setApplicationMenu(menu);
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   createMenu();
-  createWindow();
+  await createWindow();
 });
+
+ipcMain.on(
+  "show-notification",
+  (_event, { title, body }: { title: string; body: string }) => {
+    new Notification({ title, body }).show();
+  },
+);
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();

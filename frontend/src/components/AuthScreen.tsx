@@ -41,7 +41,9 @@ function AuthScreen() {
         setInfoMessage("Password reset email sent — check your inbox.");
       }
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Something went wrong.");
+      setErrorMessage(
+        err instanceof Error ? err.message : "Something went wrong.",
+      );
     }
   }
 
@@ -50,7 +52,9 @@ function AuthScreen() {
     try {
       await signInWithGoogle();
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Something went wrong.");
+      setErrorMessage(
+        err instanceof Error ? err.message : "Something went wrong.",
+      );
     }
   }
 
@@ -61,14 +65,38 @@ function AuthScreen() {
         minHeight: "100vh",
         alignItems: "center",
         justifyContent: "center",
+        background: (t) =>
+          t.palette.mode === "light"
+            ? "linear-gradient(135deg, #edf7ff 0%, #f7f3ff 100%)"
+            : "linear-gradient(135deg, #071827 0%, #111827 100%)",
       }}
     >
-      <Card sx={{ padding: 4, width: "100%", maxWidth: 380 }}>
-        <Typography variant="h1" sx={{ textTransform: "none", marginBottom: 2 }}>
-          {mode === "signIn" && "Sign In"}
-          {mode === "signUp" && "Create Account"}
-          {mode === "resetPassword" && "Reset Password"}
-        </Typography>
+      <Card sx={{ padding: 4, width: "100%", maxWidth: 420, boxShadow: 6 }}>
+        <Stack spacing={1} sx={{ marginBottom: 3 }}>
+          <Typography
+            variant="overline"
+            color="primary"
+            sx={{ letterSpacing: 1.2 }}
+          >
+            My To Do List
+          </Typography>
+          <Typography
+            variant="h1"
+            sx={{ textTransform: "none", marginBottom: 0 }}
+          >
+            {mode === "signIn" && "Welcome back"}
+            {mode === "signUp" && "Create your account"}
+            {mode === "resetPassword" && "Reset your password"}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {mode === "signIn" &&
+              "Sign in to stay on top of your tasks and keep going."}
+            {mode === "signUp" &&
+              "Start organizing your day with a clean, focused space for your goals."}
+            {mode === "resetPassword" &&
+              "We’ll send you a reset link so you can get back into your account."}
+          </Typography>
+        </Stack>
 
         <form onSubmit={handleSubmit}>
           <Stack spacing={2}>
@@ -129,21 +157,37 @@ function AuthScreen() {
         <Stack sx={{ marginTop: 2, alignItems: "center" }} spacing={1}>
           {mode === "signIn" && (
             <>
-              <Link component="button" type="button" onClick={() => setMode("resetPassword")}>
+              <Link
+                component="button"
+                type="button"
+                onClick={() => setMode("resetPassword")}
+              >
                 Forgot password?
               </Link>
-              <Link component="button" type="button" onClick={() => setMode("signUp")}>
+              <Link
+                component="button"
+                type="button"
+                onClick={() => setMode("signUp")}
+              >
                 Don't have an account? Sign up
               </Link>
             </>
           )}
           {mode === "signUp" && (
-            <Link component="button" type="button" onClick={() => setMode("signIn")}>
+            <Link
+              component="button"
+              type="button"
+              onClick={() => setMode("signIn")}
+            >
               Already have an account? Sign in
             </Link>
           )}
           {mode === "resetPassword" && (
-            <Link component="button" type="button" onClick={() => setMode("signIn")}>
+            <Link
+              component="button"
+              type="button"
+              onClick={() => setMode("signIn")}
+            >
               Back to sign in
             </Link>
           )}

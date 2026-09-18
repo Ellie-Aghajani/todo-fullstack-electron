@@ -30,18 +30,19 @@ function AddTodo() {
     queryFn: fetchCategories,
   });
 
-  const createTodoMutation = useMutation({
-    mutationFn: ({
-      title,
-      categoryId,
-    }: {
-      title: string;
-      categoryId: number;
-    }) => createTodo(title, categoryId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-    },
-  });
+const createTodoMutation = useMutation({
+  mutationFn: ({
+    title,
+    categoryId,
+  }: {
+    title: string;
+    categoryId: number;
+  }) => createTodo(title, categoryId),
+  onSuccess: (newTodo) => {
+    queryClient.invalidateQueries({ queryKey: ["todos"] });
+    window.electronApp?.showNotification("Todo created", newTodo.title);
+  },
+});
 
   const createCategoryMutation = useMutation({
     mutationFn: createCategory,
