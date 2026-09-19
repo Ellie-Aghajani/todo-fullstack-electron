@@ -7,7 +7,7 @@ export interface Todo {
   categoryId: number;
 }
 
-const BASE_URL = "http://localhost:5192/api/Todos";
+const BASE_URL = `${import.meta.env.VITE_API_URL}/api/Todos`;
 
 export async function fetchTodos(): Promise<Todo[]> {
   const response = await fetchWithAuth(BASE_URL);

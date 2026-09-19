@@ -5,7 +5,7 @@ export interface Category {
   name: string;
 }
 
-const BASE_URL = "http://localhost:5192/api/Categories";
+const BASE_URL = `${import.meta.env.VITE_API_URL}/api/Categories`;
 
 export async function fetchCategories(): Promise<Category[]> {
   const response = await fetchWithAuth(BASE_URL);
