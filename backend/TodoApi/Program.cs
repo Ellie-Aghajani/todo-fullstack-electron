@@ -29,7 +29,8 @@ builder.Services.AddCors(options =>
         {
             if (string.IsNullOrEmpty(origin)) return false;
             var uri = new Uri(origin);
-            return uri.Host == "localhost";
+            return uri.Host == "localhost"
+                || uri.Host == "todo-fullstack-electron.vercel.app";
         })
         .AllowAnyHeader()
         .AllowAnyMethod();
