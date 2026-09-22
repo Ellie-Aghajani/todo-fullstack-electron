@@ -11,9 +11,9 @@ namespace TodoApi.Controllers;
 public class TodosController : ControllerBase
 {
     private readonly ITodoRepository _repository;
-    private readonly TodoActivityLogger _logger;
+    private readonly IActivityLogger _logger;
 
-    public TodosController(ITodoRepository repository, RequestAuditor auditor, TodoActivityLogger logger)
+    public TodosController(ITodoRepository repository, RequestAuditor auditor, IActivityLogger logger)
     {
         _repository = repository;
         _logger = logger;
