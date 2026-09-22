@@ -2,9 +2,9 @@ namespace TodoApi.Services;
 
 public class RequestAuditor: IDisposable //in C#, just naming a method Dispose() does nothing special by itself — it's the : IDisposable interface declaration that plugs it into the runtime's/DI container's cleanup mechanism.
 {
-    private readonly TodoActivityLogger _logger;
+    private readonly IActivityLogger _logger;
 
-    public RequestAuditor(TodoActivityLogger logger)
+    public RequestAuditor(IActivityLogger logger)
     {
         _logger = logger;
         _logger.ActivityRecorded += HandleActivity;

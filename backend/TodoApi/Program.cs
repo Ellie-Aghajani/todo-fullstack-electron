@@ -50,7 +50,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-builder.Services.AddSingleton<TodoActivityLogger>();
+builder.Services.AddSingleton<IActivityLogger, TodoActivityLogger>();
 builder.Services.AddScoped<RequestAuditor>();
 
 var app = builder.Build();
